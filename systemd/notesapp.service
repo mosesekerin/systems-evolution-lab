@@ -1,0 +1,23 @@
+[Unit]
+Description=Notes App (Express.js)
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/notesapp/server.js
+WorkingDirectory=/opt/notesapp
+Restart=always
+RestartSec=5
+User=notesapp
+Group=notesapp
+Environment=NODE_ENV=production
+
+StandardOutput=append:/var/log/notesapp.log
+StandardError=append:/var/log/notesapp.log
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
