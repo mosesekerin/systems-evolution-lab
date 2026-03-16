@@ -168,10 +168,10 @@ USER_DATA=$(cat <<'EOF'
 set -e
 
 echo "Updating system packages..."
-yum update -y
+dnf update -y
 
 echo "Installing required packages..."
-yum install -y git nodejs
+dnf install -y git nodejs
 
 echo "Creating service user..."
 useradd --system --create-home --shell /sbin/nologin notesapp || true
