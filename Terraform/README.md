@@ -13,19 +13,19 @@ A faithful Terraform replica of the original `provision.sh` bash script.
 ## Usage
 
 ```bash
-# 1. Initialise — downloads the AWS provider
+1. Initialise — downloads the AWS provider
 terraform init
 
-# 2. Preview what will be created
+2. Preview what will be created
 terraform plan
 
-# 3. Apply (type 'yes' to confirm)
+3. Apply (type 'yes' to confirm)
 terraform apply
 
-# 4. Connect once the instance is ready (~2 min for user-data to finish)
+4. Connect once the instance is ready (~2 min for user-data to finish)
 $(terraform output -raw ssh_command)
 
-# 5. Tear everything down when done
+5. Tear everything down when done
 terraform destroy
 ```
 
