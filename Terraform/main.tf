@@ -194,6 +194,10 @@ locals {
     chmod +x /opt/notesapp/bootstrap.sh
     chmod +x /opt/notesapp/scripts/*.sh
 
+    echo "Running the application at boot"
+    cd /opt/notesapp
+    ./bootstrap.sh
+
     echo "Boot setup complete."
   EOF
 }
