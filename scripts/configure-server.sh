@@ -28,4 +28,5 @@ chmod +x /opt/notesapp/scripts/*.sh
 echo "Server configuration complete."
 
 echo "Setting up the application"
-./scripts/setup_notesapp.sh
+cd /opt/notesapp/scripts
+.setup_notesapp.sh
