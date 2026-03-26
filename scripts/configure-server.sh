@@ -23,7 +23,6 @@ git clone https://github.com/mosesekerin/systems-evolution-lab.git /opt/notesapp
 chown -R notesapp:notesapp /opt/notesapp
 
 echo "Making all scripts executable..."
-chmod +x /opt/notesapp/bootstrap.sh
 chmod +x /opt/notesapp/scripts/*.sh
 
 echo "Server configuration complete."
