@@ -171,18 +171,9 @@ data "aws_ami" "amazon_linux_2023" {
 locals {
   user_data = <<-EOF
     #!/bin/bash
-    set -e
-
-    echo "Downloading server configuration script..."
-    curl -fsSL https://raw.githubusercontent.com/mosesekerin/systems-evolution-lab/main/scripts/configure-server.sh \
-      -o /tmp/configure-server.sh
-
-    chmod +x /tmp/configure-server.sh
-
-    echo "Running server configration..."
-    bash /tmp/configure-server.sh
-
-    echo "Boot setup complete."
+    # Ansible connects over SSH - no bootstrap needed.
+    # AL2023 ships with Python3, so Ansible works out of the box.
+    echo "Instance ready for Ansible provisioning." >> /var/log/init.log
   EOF
 }
 
