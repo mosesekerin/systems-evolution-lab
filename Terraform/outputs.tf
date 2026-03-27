@@ -8,6 +8,11 @@ output "public_ip" {
   value       = aws_instance.notesapp.public_ip
 }
 
+output "private_key_path" {
+  description = "Path to the generated PEM file"
+  value       = local_sensitive_file.private_key.filename
+}
+
 output "ssh_command" {
   description = "SSH command to connect to the instance"
   value       = "ssh -i ${var.key_name}.pem ec2-user@${aws_instance.notesapp.public_ip}"
