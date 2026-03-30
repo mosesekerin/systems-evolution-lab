@@ -1,0 +1,165 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: NotesApp - Single EC2 Monolithic Deployment
+
+Parameters:
+  KeyPairName:
+    Type: String
+    Description: Name of an existing EC2 KeyPair for SSH access
+    Default: notesapp-key
+
+Resources:
+
+  NotesAppVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: notesapp-vpc
+
+  NotesAppSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref NotesAppVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: notesapp-subnet
+
+  NotesAppIGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: notesapp-igw
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref NotesAppVPC
+      InternetGatewayId: !Ref NotesAppIGW
+
+  NotesAppRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref NotesAppVPC
+      Tags:
+        - Key: Name
+          Value: notesapp-rt
+
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref NotesAppRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref NotesAppIGW
+
+  SubnetRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref NotesAppSubnet
+      RouteTableId: !Ref NotesAppRouteTable
+
+  NotesAppSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: NotesApp Security Group
+      VpcId: !Ref NotesAppVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: notesapp-sg
+
+  NotesAppInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: !Ref KeyPairName
+      SubnetId: !Ref NotesAppSubnet
+      SecurityGroupIds:
+        - !Ref NotesAppSG
+      ImageId: !Sub '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2}}'
+      Tags:
+        - Key: Name
+          Value: notesapp-server
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -e
+          exec > /var/log/userdata.log 2>&1
+
+          # Update system
+          dnf update -y
+          dnf install -y git nodejs
+
+          # Create service user
+          useradd --system --create-home --shell /sbin/nologin notesapp || true
+
+          # Deploy app
+          mkdir -p /opt/notesapp
+          git clone https://github.com/devbrodun/systems-evolution-lab.git /opt/notesapp
+          chown -R notesapp:notesapp /opt/notesapp
+
+          # Install dependencies
+          cd /opt/notesapp
+          sudo -u notesapp npm install --omit=dev
+
+          # Create storage and log files
+          touch /opt/notesapp/notes.json
+          chown notesapp:notesapp /opt/notesapp/notes.json
+          touch /var/log/notesapp.log
+          chown notesapp:notesapp /var/log/notesapp.log
+
+          # Create systemd service
+          cat > /etc/systemd/system/notesapp.service <<EOF
+          [Unit]
+          Description=Notes App (Express.js)
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/node /opt/notesapp/server.js
+          WorkingDirectory=/opt/notesapp
+          Restart=always
+          RestartSec=5
+          User=notesapp
+          Group=notesapp
+          Environment=NODE_ENV=production
+          StandardOutput=append:/var/log/notesapp.log
+          StandardError=append:/var/log/notesapp.log
+          NoNewPrivileges=true
+          PrivateTmp=true
+          ProtectSystem=full
+          ProtectHome=true
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          systemctl daemon-reload
+          systemctl enable notesapp
+          systemctl start notesapp
+
+Outputs:
+  PublicIP:
+    Description: Public IP of the NotesApp server
+    Value: !GetAtt NotesAppInstance.PublicIp
+
+  AppURL:
+    Description: URL to access the app
+    Value: !Sub 'http://${NotesAppInstance.PublicIp}:3000'
