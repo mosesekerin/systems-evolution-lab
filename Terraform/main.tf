@@ -171,34 +171,9 @@ data "aws_ami" "amazon_linux_2023" {
 locals {
   user_data = <<-EOF
     #!/bin/bash
-    set -e
-
-    echo "Updating system packages..."
-    dnf update -y
-
-    echo "Installing required packages..."
-    dnf install -y git nodejs
-
-    echo "Creating service user..."
-    useradd --system --create-home --shell /sbin/nologin notesapp || true
-
-    echo "Creating application directory..."
-    mkdir -p /opt/notesapp
-    chown notesapp:notesapp /opt/notesapp
-
-    echo "Cloning application repository..."
-    git clone https://github.com/mosesekerin/systems-evolution-lab.git /opt/notesapp
-    chown -R notesapp:notesapp /opt/notesapp
-
-    echo "Making all scripts executable"
-    chmod +x /opt/notesapp/bootstrap.sh
-    chmod +x /opt/notesapp/scripts/*.sh
-
-    echo "Running the application at boot"
-    cd /opt/notesapp
-    ./bootstrap.sh
-
-    echo "Boot setup complete."
+    # Ansible connects over SSH - no bootstrap needed.
+    # AL2023 ships with Python3, so Ansible works out of the box.
+    echo "Instance ready for Ansible provisioning." >> /var/log/init.log
   EOF
 }
 

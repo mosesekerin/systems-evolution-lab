@@ -1,0 +1,87 @@
+# Terraform
+**/.terraform# =====================================
+# Terraform
+# =====================================
+# Local .terraform directories
+**/.terraform/*
+# Terraform plan files
+*.tfplan
+*.tfstate
+*.tfstate.backup
+# Crash logs
+crash.log
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# Ignore CLI config files
+.terraformrc
+terraform.rc
+
+# =====================================
+# AWS
+# =====================================
+# AWS CLI credentials
+*.aws/credentials
+*.aws/config
+*.pem
+# Ignore temp zip archives or downloaded files
+*.zip
+*.tar.gz
+
+# =====================================
+# Ansible
+# =====================================
+# Vault secrets
+*.vault
+# Fact cache
+fact_cache/
+# Log files
+ansible.log
+# Retry files
+*.retry
+
+# =====================================
+# Docker
+# =====================================
+# Docker local files
+docker-compose.override.yml
+docker-compose.override.yaml
+# Ignore Docker volumes and containers
+volumes/
+*.pid
+*.sock
+*.log
+# Ignore built images
+*.tar
+
+# =====================================
+# GitHub Actions
+# =====================================
+# Workflow temp files
+.github/workflows/.*
+.github/workflows/__pycache__/
+.github/workflows/*.log
+.github/workflows/action_outputs/
+
+# =====================================
+# OS & IDE
+# =====================================
+# VSCode
+.vscode/
+# MacOS
+.DS_Store
+# Linux
+*.swp/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform lock file (optional but usually keep it)
+# .terraform.lock.hcl
+*.zip

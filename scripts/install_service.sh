@@ -7,3 +7,6 @@ sudo cp /opt/notesapp/systemd/notesapp.service /etc/systemd/system/notesapp.serv
 echo "Reloading systemd..."
 sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
+
+echo "Starting the notesapp service"
+./scripts/deploy.sh

@@ -164,29 +164,18 @@ echo "AMI: $AMI_ID"
 # -------------------------
 
 USER_DATA=$(cat <<'EOF'
-#!/bin/bash
-set -e
+user_data = <<-EOF
+    #!/bin/bash
+    set -e
 
-echo "Updating system packages..."
-dnf update -y
+    echo "Downloading server configuration script..."
+    curl -fsSL https://raw.githubusercontent.com/mosesekerin/systems-evolution-lab/main/scripts/configure-server.sh \
+      -o /tmp/configure-server.sh
 
-echo "Installing required packages..."
-dnf install -y git nodejs
+    chmod +x /tmp/configure-server.sh
 
-echo "Creating service user..."
-useradd --system --create-home --shell /sbin/nologin notesapp || true
-
-echo "Creating application directory..."
-mkdir -p /opt/notesapp
-chown notesapp:notesapp /opt/notesapp
-
-echo "Cloning application repository..."
-git clone https://github.com/mosesekerin/systems-evolution-lab.git /opt/notesapp
-chown -R notesapp:notesapp /opt/notesapp
-
-echo "Making all scripts executable"
-chmod +x /opt/notesapp/bootstrap.sh
-chmod +x /opt/notesapp/scripts/*.sh
+    echo "Running server configuration..."
+    bash /tmp/configure-server.sh
 
 echo "Running the application at boot"
 cd /opt/notesapp
