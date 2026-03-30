@@ -26,7 +26,7 @@ jobs:
           aws cloudformation deploy \
             --template-file .aws/cloudformation.yml \
             --stack-name notesapp-stack \
-            --parameter-overrides KeyPairName=notesapp-key \
+            --parameter-overrides KeyPairName=my-EC2-key \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
 
