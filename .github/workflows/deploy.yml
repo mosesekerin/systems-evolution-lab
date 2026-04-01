@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  AWS_REGION: us-east-1  # Change to your actual region — no need to store in secrets
+
 jobs:
   deploy:
     name: Deploy CloudFormation Stack
@@ -19,7 +22,23 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Delete stack if in ROLLBACK_COMPLETE
+        run: |
+          STATUS=$(aws cloudformation describe-stacks \
+            --stack-name notesapp-stack \
+            --query "Stacks[0].StackStatus" \
+            --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+
+          echo "Current stack status: $STATUS"
+
+          if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
+            echo "Stack is in ROLLBACK_COMPLETE state — deleting before redeploy..."
+            aws cloudformation delete-stack --stack-name notesapp-stack
+            aws cloudformation wait stack-delete-complete --stack-name notesapp-stack
+            echo "Stack deleted. Proceeding with fresh deployment."
+          fi
 
       - name: Deploy CloudFormation stack
         run: |
