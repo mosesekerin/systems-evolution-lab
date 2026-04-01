@@ -92,6 +92,9 @@ By experiencing failures directly, I aim to build a deeper understanding of syst
 
 ## Repository Structure
 
+
+
+```bash
 .
 ├── ansible/              # Configuration management (server setup)
 │   ├── inventory/
@@ -121,7 +124,7 @@ By experiencing failures directly, I aim to build a deeper understanding of syst
 ├── server.js             # Application entry point
 ├── package.json
 └── README.md
-
+```
 ---
 
 ## Status
