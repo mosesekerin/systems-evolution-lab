@@ -177,8 +177,12 @@ user_data = <<-EOF
     echo "Running server configuration..."
     bash /tmp/configure-server.sh
 
-    echo "Boot setup complete."
-  EOF
+echo "Running the application at boot"
+cd /opt/notesapp
+./bootstrap.sh
+
+echo "Boot setup complete."
+EOF
 )
 
 # -------------------------
